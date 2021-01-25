@@ -16,7 +16,7 @@ namespace CRM
         {
             //Conexao conexao = new Conexao();
             //var serviceProxy = conexao.obter();
-            Descoberta();
+            Descoberta(); 
             Console.ReadKey();
         }
 
