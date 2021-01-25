@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Discovery;
+using Microsoft.Xrm.Sdk;
 
 namespace CRM
 {
@@ -55,6 +56,23 @@ namespace CRM
 
         }
         #endregion
+        
+        #region CodigoParaCriar
+        static void  Create(OrganizationServiceProxy serviceProxy)
+        {
+
+            for (int i = 0; i < 10; i++)
+            {
+                var entidade = new Entity("account");
+                Guid registro = new Guid();
+
+                entidade.Attributes.Add("name", "Treinando com a Aninha" + i.ToString());
+                registro = serviceProxy.Create(entidade);
+            }
+
+        }
+        #endregion
+        
     }
 
 }
