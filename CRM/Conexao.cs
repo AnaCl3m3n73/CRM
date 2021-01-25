@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk.Client;
+using Microsoft.Xrm.Sdk.Discovery;
+using Microsoft.Xrm.Tooling.Connector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.ServiceModel.Description;
 using System.Text;
-using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Xrm.Sdk.Client;
+
 
 namespace CRM
 {
@@ -26,6 +29,17 @@ namespace CRM
             return serviceproxy;
 
         }
-               
+
+        public CrmServiceClient ObterNovaConexao()
+        {
+            return new CrmServiceClient(@"AuthType=OAuth;
+                Username=crmonline2021@treinamentocrmonline.onmicrosoft.com;
+                Password=Londres2021;SkipDiscovery=True;
+                AppId=51f81489-12ee-4a9e-aaae-a2591f45987d;
+                RedirectUri=app://58145B91-0C36-4500-8554-080854F2AC97;
+                Url=https://treinamentodecrm.api.crm2.dynamics.com/XRMServices/2011/Organization.svc;");
+        }
+
     }
+    
 }

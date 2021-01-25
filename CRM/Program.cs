@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel.Description;
-using System.Text;
-using System.Net;
-using System.Threading.Tasks;
+﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Discovery;
-using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Tooling.Connector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.ServiceModel.Description;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CRM
 {
@@ -15,9 +16,12 @@ namespace CRM
     {
         static void Main(string[] args)
         {
-            //Conexao conexao = new Conexao();
+            Conexao conexao = new Conexao();
             //var serviceProxy = conexao.Obter();
-            Descoberta(); 
+            var clientCRM = conexao.ObterNovaConexao();
+            //Descoberta();
+
+            Create(clientCRM);
             Console.ReadKey();
         }
 
@@ -58,7 +62,7 @@ namespace CRM
         #endregion
         
         #region CodigoParaCriar
-        static void  Create(OrganizationServiceProxy serviceProxy)
+        static void  Create(CrmServiceClient clientCRM)
         {
 
             for (int i = 0; i < 10; i++)
@@ -67,7 +71,8 @@ namespace CRM
                 Guid registro = new Guid();
 
                 entidade.Attributes.Add("name", "Treinando com a Aninha" + i.ToString());
-                registro = serviceProxy.Create(entidade);
+                entidade.Attributes.Add("telephone1","11954745635");
+                registro = clientCRM.Create(entidade);
             }
 
         }
