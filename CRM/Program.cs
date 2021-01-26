@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Discovery;
+using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,9 @@ namespace CRM
             //var serviceProxy = conexao.Obter();
             var clientCRM = conexao.ObterNovaConexao();
             //Descoberta();
+            //Create(clientCRM);
+            CriacaoRetornoAtualizacaoDelete(clientCRM);
 
-            Create(clientCRM);
             Console.ReadKey();
         }
 
@@ -60,9 +62,9 @@ namespace CRM
 
         }
         #endregion
-        
+
         #region CodigoParaCriar
-        static void  Create(CrmServiceClient clientCRM)
+        static void Create(CrmServiceClient clientCRM)
         {
 
             for (int i = 0; i < 10; i++)
@@ -70,14 +72,59 @@ namespace CRM
                 var entidade = new Entity("account");
                 Guid registro = new Guid();
 
-                entidade.Attributes.Add("name", "Treinando com a Aninha" + i.ToString());
-                entidade.Attributes.Add("telephone1","11954745635");
+                entidade.Attributes.Add("name", "Treinamento com a Aninha " + i.ToString());
+                entidade.Attributes.Add("telephone1", "11954745635");
                 registro = clientCRM.Create(entidade);
             }
 
         }
         #endregion
-        
+
+        #region CriacaoRetornoAtualizacaoDelete
+
+        static void CriacaoRetornoAtualizacaoDelete(CrmServiceClient clientCRM)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                var entidade = new Entity("account");
+                Entity registroresposta = new Entity();
+                Guid registro = new Guid();
+
+                entidade.Attributes.Add("name", "Trainning " + i.ToString());
+                entidade.Id = clientCRM.Create(entidade);
+
+                entidade.Attributes.Add("parentaccountid", new EntityReference("account", new Guid("BFA6DEA4-235F-EB11-A812-000D3AC156EB")));
+                clientCRM.Update(entidade);
+
+
+                registroresposta = clientCRM.Retrieve("account", entidade.Id, new ColumnSet("name", "parentaccountid"));
+
+                if (registroresposta.Attributes.Contains("name"))
+                    registroresposta.Attributes["name"] = "Trainnning" + (i + 1).ToString();
+                else
+                    registroresposta.Attributes.Add("name", "meu valor");
+                if(registroresposta.Attributes.Contains("parentaccountid"))
+                {
+                    registroresposta.Attributes["parentaccountid"] = new EntityReference("account", new Guid("B5F6B4C6-B65E-EB11-A812-000D3AC156EB"));
+                }
+                else
+                {
+                    registroresposta.Attributes["parentaccountid"] = new EntityReference("account", new Guid("B5F6B4C6-B65E-EB11-A812-000D3AC156EB"));
+                }
+
+                clientCRM.Update(registroresposta);
+                clientCRM.Delete("account", registroresposta.Id);
+                Console.WriteLine("registro deletado: " + registro.ToString());
+            }
+
+        }
+        #endregion
+
+
+
+
+
+
     }
 
 }
