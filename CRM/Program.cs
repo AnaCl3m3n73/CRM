@@ -22,7 +22,9 @@ namespace CRM
             var clientCRM = conexao.ObterNovaConexao();
             //Descoberta();
             //Create(clientCRM);
-            CriacaoRetornoAtualizacaoDelete(clientCRM);
+            //CriacaoRetornoAtualizacaoDelete(clientCRM);
+            
+
 
             Console.ReadKey();
         }
@@ -120,7 +122,51 @@ namespace CRM
         }
         #endregion
 
+        #region QueryExpression
 
+        static void QueryExpression (OrganizationServiceProxy serviceProxy)
+        {
+            QueryExpression qry = new QueryExpression("account");
+            qry.ColumnSet = new ColumnSet(true);
+
+            ConditionExpression condicao = new ConditionExpression("address1_city", ConditionOperator.Equal, "Natal");
+            qry.Criteria.AddCondition(condicao);
+
+            LinkEntity link = new LinkEntity("account", "contact", "primarycontactid", "contactid", JoinOperator.Inner);
+            link.Columns = new ColumnSet("firstname","lastname");
+            link.EntityAlias = "contato";
+
+            qry.LinkEntities.Add(link);
+
+            EntityCollection colecaoEntidades = serviceProxy.RetrieveMultiple(qry);
+            foreach (var entidade in colecaoEntidades.Entities)
+            {
+                Console.WriteLine("ID: "+ entidade.Id);
+                Console.WriteLine("NOME DA CONTA: "+entidade["name"]);
+                Console.WriteLine("NOME DO CONTATO: "+ ((AliasedValue)entidade["contato.firstname"]).Value);
+                Console.WriteLine("SOBRENOME DO CONTATO: " + ((AliasedValue)entidade["contato.lastname"]).Value);
+            }
+        }
+        #endregion
+
+        #region RetornarMultiplo
+        static void RetornarMultiplo(CrmServiceClient serviceProxy)
+        {
+            QueryExpression qry = new QueryExpression("account");
+
+            qry.Criteria.AddCondition("name", ConditionOperator.BeginsWith, "Treinamento");
+            qry.ColumnSet = new ColumnSet(true);
+            EntityCollection colecaoentidades = serviceProxy.RetrieveMultiple(qry);
+
+            if (colecaoentidades.Entities.Count > 0)
+            {
+                foreach (var item in colecaoentidades.Entities)
+                {
+                    Console.WriteLine(item["name"]);
+                }
+            }
+        }
+        #endregion
 
 
 
