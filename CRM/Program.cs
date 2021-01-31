@@ -23,12 +23,13 @@ namespace CRM
             //Descoberta();
             //Create(clientCRM);
             //CriacaoRetornoAtualizacaoDelete(clientCRM);
-            
+            // RetornarMultiplo(clientCRM);
+            QueryExpression(clientCRM);
 
 
             Console.ReadKey();
         }
-
+        //Lembrete : métodos de associação tardia = late bound
 
         #region Descoberta
         static void Descoberta()
@@ -65,7 +66,7 @@ namespace CRM
         }
         #endregion
 
-        #region CodigoParaCriar
+        #region Codigo Para CriarRegistros no CRM
         static void Create(CrmServiceClient clientCRM)
         {
 
@@ -82,7 +83,7 @@ namespace CRM
         }
         #endregion
 
-        #region CriacaoRetornoAtualizacaoDelete
+        #region Criacao Retorno Atualizacao Delete
 
         static void CriacaoRetornoAtualizacaoDelete(CrmServiceClient clientCRM)
         {
@@ -124,13 +125,13 @@ namespace CRM
 
         #region QueryExpression
 
-        static void QueryExpression (OrganizationServiceProxy serviceProxy)
+        static void QueryExpression (CrmServiceClient serviceProxy)
         {
             QueryExpression qry = new QueryExpression("account");
             qry.ColumnSet = new ColumnSet(true);
 
-            ConditionExpression condicao = new ConditionExpression("address1_city", ConditionOperator.Equal, "Natal");
-            qry.Criteria.AddCondition(condicao);
+            //ConditionExpression condicao = new ConditionExpression("address1_city", ConditionOperator.Equal, "Natal");
+            //qry.Criteria.AddCondition(condicao);
 
             LinkEntity link = new LinkEntity("account", "contact", "primarycontactid", "contactid", JoinOperator.Inner);
             link.Columns = new ColumnSet("firstname","lastname");
@@ -144,17 +145,17 @@ namespace CRM
                 Console.WriteLine("ID: "+ entidade.Id);
                 Console.WriteLine("NOME DA CONTA: "+entidade["name"]);
                 Console.WriteLine("NOME DO CONTATO: "+ ((AliasedValue)entidade["contato.firstname"]).Value);
-                Console.WriteLine("SOBRENOME DO CONTATO: " + ((AliasedValue)entidade["contato.lastname"]).Value);
+                Console.WriteLine($"SOBRENOME DO CONTATO: {((AliasedValue)entidade["contato.lastname"]).Value}\n");
             }
         }
         #endregion
 
-        #region RetornarMultiplo
+        #region Retornar Multiplo
         static void RetornarMultiplo(CrmServiceClient serviceProxy)
         {
             QueryExpression qry = new QueryExpression("account");
 
-            qry.Criteria.AddCondition("name", ConditionOperator.BeginsWith, "Treinamento");
+            qry.Criteria.AddCondition("name", ConditionOperator.BeginsWith, "Treinando");
             qry.ColumnSet = new ColumnSet(true);
             EntityCollection colecaoentidades = serviceProxy.RetrieveMultiple(qry);
 
@@ -167,6 +168,7 @@ namespace CRM
             }
         }
         #endregion
+
 
 
 
