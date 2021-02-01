@@ -24,7 +24,8 @@ namespace CRM
             //Create(clientCRM);
             //CriacaoRetornoAtualizacaoDelete(clientCRM);
             // RetornarMultiplo(clientCRM);
-            QueryExpression(clientCRM);
+            //QueryExpression(clientCRM);
+            Consultainq(clientCRM);
 
 
             Console.ReadKey();
@@ -169,10 +170,34 @@ namespace CRM
         }
         #endregion
 
+        #region LinQ
+        static void Consultainq (CrmServiceClient serviceProxy)
+        {
+            OrganizationServiceContext context = new OrganizationServiceContext(serviceProxy);
+
+            var resultados = from a in context.CreateQuery("contact")
+                             join b in context.CreateQuery("account")
+                             on a["contactid"] equals b["primarycontactid"]
+
+                             select new
+                             {
+                                 retorno = new
+                                 {
+                                     firstname = a["firstname"],
+                                     lastname = a["lastname"],
+                                     nomeconta = b["name"]
+                                 }
+                             };
 
 
-
-
+            foreach (var entidade in resultados)
+            {
+                Console.WriteLine("Nome: " + entidade.retorno.firstname);
+                Console.WriteLine("SobreNome: " + entidade.retorno.lastname);
+                Console.WriteLine($"Nome da Conta: {entidade.retorno.nomeconta}\n");
+            }
+        }
+        #endregion
     }
 
 }
