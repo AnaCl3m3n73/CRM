@@ -47,7 +47,7 @@ display: inline;
     background-color: black;
     color: white;
     text-decoration: none;
-    border-bottom: 3px solid #EDEDED;
+    border-bottom: 3px solid black;
  }
 
 #menu ul li a:hover {

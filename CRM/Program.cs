@@ -1,4 +1,5 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Discovery;
 using Microsoft.Xrm.Sdk.Query;
@@ -25,7 +26,13 @@ namespace CRM
             //CriacaoRetornoAtualizacaoDelete(clientCRM);
             // RetornarMultiplo(clientCRM);
             //QueryExpression(clientCRM);
-            Consultainq(clientCRM);
+            //Consultainq(clientCRM);
+            //CriacaoLinq(clientCRM);
+            //UpdateLinQ(clientCRM);
+            //ExcluirLinQ(clientCRM);
+            //Fetch(clientCRM);
+            //FetchAggregate(clientCRM);
+            ExecuteAssign(clientCRM);
 
 
             Console.ReadKey();
@@ -39,8 +46,8 @@ namespace CRM
             Uri local = new Uri("https://disco.crm2.dynamics.com/XRMServices/2011/Discovery.svc");
 
             ClientCredentials clientcred = new ClientCredentials();
-            clientcred.UserName.UserName = "crmonline2021@treinamentocrmonline.onmicrosoft.com";
-            clientcred.UserName.Password = "Londres2021";
+            clientcred.UserName.UserName = "treinamentocrm@crmonline2021.onmicrosoft.com";
+            clientcred.UserName.Password = "Londres@2021";
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -63,6 +70,7 @@ namespace CRM
                 }
             }
             Console.ReadKey();
+
 
         }
         #endregion
@@ -97,7 +105,7 @@ namespace CRM
                 entidade.Attributes.Add("name", "Trainning " + i.ToString());
                 entidade.Id = clientCRM.Create(entidade);
 
-                entidade.Attributes.Add("parentaccountid", new EntityReference("account", new Guid("BFA6DEA4-235F-EB11-A812-000D3AC156EB")));
+                entidade.Attributes.Add("parentaccountid", new EntityReference("account", new Guid("9FF0549D-5474-EB11-A812-002248372F85")));
                 clientCRM.Update(entidade);
 
 
@@ -107,13 +115,13 @@ namespace CRM
                     registroresposta.Attributes["name"] = "Trainnning" + (i + 1).ToString();
                 else
                     registroresposta.Attributes.Add("name", "meu valor");
-                if(registroresposta.Attributes.Contains("parentaccountid"))
+                if (registroresposta.Attributes.Contains("parentaccountid"))
                 {
-                    registroresposta.Attributes["parentaccountid"] = new EntityReference("account", new Guid("B5F6B4C6-B65E-EB11-A812-000D3AC156EB"));
+                    registroresposta.Attributes["parentaccountid"] = new EntityReference("account", new Guid("A4F0549D-5474-EB11-A812-002248372F85"));
                 }
                 else
                 {
-                    registroresposta.Attributes["parentaccountid"] = new EntityReference("account", new Guid("B5F6B4C6-B65E-EB11-A812-000D3AC156EB"));
+                    registroresposta.Attributes["parentaccountid"] = new EntityReference("account", new Guid("AEF0549D-5474-EB11-A812-002248372F85"));
                 }
 
                 clientCRM.Update(registroresposta);
@@ -126,7 +134,7 @@ namespace CRM
 
         #region QueryExpression
 
-        static void QueryExpression (CrmServiceClient serviceProxy)
+        static void QueryExpression(CrmServiceClient serviceProxy)
         {
             QueryExpression qry = new QueryExpression("account");
             qry.ColumnSet = new ColumnSet(true);
@@ -135,7 +143,7 @@ namespace CRM
             //qry.Criteria.AddCondition(condicao);
 
             LinkEntity link = new LinkEntity("account", "contact", "primarycontactid", "contactid", JoinOperator.Inner);
-            link.Columns = new ColumnSet("firstname","lastname");
+            link.Columns = new ColumnSet("firstname", "lastname");
             link.EntityAlias = "contato";
 
             qry.LinkEntities.Add(link);
@@ -143,9 +151,9 @@ namespace CRM
             EntityCollection colecaoEntidades = serviceProxy.RetrieveMultiple(qry);
             foreach (var entidade in colecaoEntidades.Entities)
             {
-                Console.WriteLine("ID: "+ entidade.Id);
-                Console.WriteLine("NOME DA CONTA: "+entidade["name"]);
-                Console.WriteLine("NOME DO CONTATO: "+ ((AliasedValue)entidade["contato.firstname"]).Value);
+                Console.WriteLine("ID: " + entidade.Id);
+                Console.WriteLine("NOME DA CONTA: " + entidade["name"]);
+                Console.WriteLine("NOME DO CONTATO: " + ((AliasedValue)entidade["contato.firstname"]).Value);
                 Console.WriteLine($"SOBRENOME DO CONTATO: {((AliasedValue)entidade["contato.lastname"]).Value}\n");
             }
         }
@@ -171,7 +179,7 @@ namespace CRM
         #endregion
 
         #region LinQ
-        static void Consultainq (CrmServiceClient serviceProxy)
+        static void Consultainq(CrmServiceClient serviceProxy)
         {
             OrganizationServiceContext context = new OrganizationServiceContext(serviceProxy);
 
@@ -198,6 +206,144 @@ namespace CRM
             }
         }
         #endregion
+
+        #region CriaçãoLinQ
+        static void CriacaoLinq(CrmServiceClient serviceProxy)
+        {
+            OrganizationServiceContext context = new OrganizationServiceContext(serviceProxy);
+            for (int i = 0; i < 10; i++)
+            {
+                Entity account = new Entity("account");
+                account["name"] = "Conta LinQ " + i;
+                context.AddObject(account);
+            }
+            var olha = context.SaveChanges();
+        }
+        #endregion
+
+        #region UpdateLinQ
+        static void UpdateLinQ(CrmServiceClient serviceProxy)
+        {
+            OrganizationServiceContext context = new OrganizationServiceContext(serviceProxy);
+            var resultado = from a in context.CreateQuery("contact")
+                            where ((string)a["firstname"]) == "Darren"
+                            select a;
+
+            foreach (var item in resultado)
+            {
+                item.Attributes["firstname"] = "Daniel Geraldeli";
+                context.UpdateObject(item);
+            }
+            context.SaveChanges();
+        }
+        #endregion
+
+        #region ExcluirLinQ
+        static void ExcluirLinQ(CrmServiceClient serviceProxy)
+        {
+            OrganizationServiceContext context = new OrganizationServiceContext(serviceProxy);
+
+            var resultado = from a in context.CreateQuery("account")
+                            where ((string)a["name"]) == "Acampamento CucaMonga0"
+                            select a;
+
+            foreach (var item in resultado)
+            {
+                context.DeleteObject(item);
+            }
+
+            context.SaveChanges();
+        }
+        #endregion
+
+        #region FetchXML
+
+        static void Fetch(CrmServiceClient serviceProxy)
+        {
+            string queryfetch = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
+                                  <entity name='account'>
+                                    <attribute name='name' />
+                                    <attribute name='primarycontactid' />
+                                    <attribute name='telephone1' />
+                                    <attribute name='accountid' />
+                                    <order attribute='name' descending='false' />
+                                    <filter type='and'>
+                                      <condition attribute='emailaddress1' operator='not-null' />
+                                    </filter>
+                                  </entity>
+                                </fetch>";
+
+            EntityCollection colecao = serviceProxy.RetrieveMultiple(new FetchExpression(queryfetch));
+            foreach (var item in colecao.Entities)
+            {
+                Console.WriteLine(item["name"]);
+            }
+        }
+        #endregion
+
+        #region FetchAggregate
+
+        static void FetchAggregate(CrmServiceClient serviceProxy)
+        {
+            string fetch = @"< fetch version = '1.0' output - format = 'xml-platform' mapping = 'logical' distinct = 'false' aggregate = 'true' >           
+                             < entity name = 'opportunity' >            
+                             < attribute name = 'budgetamount' alias = 'budgetamount_soma' aggregate = 'avg' />                
+                             </ entity >
+                             </ fetch >";
+
+            EntityCollection colecao = serviceProxy.RetrieveMultiple(new FetchExpression(fetch));
+
+            foreach (var item in colecao.Entities)
+            {
+                Console.WriteLine(((Money)((AliasedValue)item["budgetamount_soma"]).Value).Value);
+            }
+        }
+        #endregion
+
+        #region ExecuteAssign 
+        //Atribuir registros
+        static void ExecuteAssign(CrmServiceClient serviceProxy)
+        {
+            var contas = serviceProxy.RetrieveMultiple(new QueryExpression("account"));
+            var query = new QueryExpression("systemuser");
+            query.Criteria.AddCondition("domainname", ConditionOperator.Equal, "treinamentocrm@crmonline2021.onmicrosoft.com");
+
+            var usuarios = serviceProxy.RetrieveMultiple(query);
+
+            if (usuarios.Entities.Count > 0)
+            {
+                if (contas.Entities.Count > 0)
+                {
+
+                    foreach (var conta in contas.Entities)
+                    {
+                        EntityReference dono = new EntityReference("systemuser",usuarios.Entities[0].Id);
+                        EntityReference alvo = new EntityReference("account", conta.Id);
+
+                        AssignRequest assreq = new AssignRequest();
+
+                        assreq.Assignee = dono;
+                        assreq.Target = alvo;
+
+                        try
+                        {
+                            AssignResponse resposta = (AssignResponse)serviceProxy.Execute(assreq);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Não foi possível atribuir o registro ao usuário. Detalhes técnicos: { ex.Message}");
+                        }
+
+                       
+                    }
+
+                }
+
+            }
+
+        }
+        #endregion
+
     }
 
 }
